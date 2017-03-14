@@ -2,37 +2,33 @@ import numpy as np
 from time import perf_counter as pc
 import matplotlib.pyplot as plt
 
-N = 10000000
+N = 10_000_000
 
+
+def timed(f):
+    def wrapped(*args):
+        begin = pc()
+        f(*args)
+        end = pc() - begin
+        return end
+
+    return wrapped
+
+
+@timed
 def list_comprehension(n):
-    begin = pc()
-    xs = [x for x in range(n)]
-    s = sum(xs)
-    end = pc() - begin
-    print('Sum: %d' % s)
-    return end
+    return sum([x for x in range(n)])
 
-def generator_comprehension(n):
-    begin = pc()
-    xs = (x for x in range(n))
-    s = sum(xs)
-    end = pc() - begin
-    print('Sum: %d' % s)
-    return end
 
+@timed
 def np_array(n):
-    begin = pc()
-    ys = np.arange(0, n)
-    s = ys.sum()
-    end = pc() - begin
-    print('Sum: %d' % s)
-    return end
+    return np.arange(0, n).sum()
 
-plt.plot([(generator_comprehension(n * N), list_comprehension(n * N), np_array(n * N)) for n in range(1, 8)])
-#plt.plot([np_array(n * N) for n in range(10)])
+
+plt.plot([(list_comprehension(n * N), np_array(n * N)) for n in range(1, 10)])
+
 plt.ylabel('Time (s)')
 plt.xlabel('x %d' % N)
 plt.legend(['Generator', 'List', 'narray'])
 plt.title('Sum of range(0, N)')
 plt.show()
-
